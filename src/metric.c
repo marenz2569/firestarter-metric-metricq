@@ -86,9 +86,3 @@ metric_interface_t metric = {
 	.get_reading = get_reading,
 	.get_error = get_error,
 };
-
-static void initi(void) __attribute__((constructor));
-static void initi(void) {}
-
-static void shutdown(void) __attribute__((destructor));
-static void shutdown(void) {}

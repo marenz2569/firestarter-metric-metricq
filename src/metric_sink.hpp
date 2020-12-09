@@ -62,4 +62,7 @@ private:
   std::atomic<bool> ready_ = false;
   std::atomic<bool> error_ = false;
   std::string errorString_ = "";
+
+  std::string server;
+  std::string metric;
 };

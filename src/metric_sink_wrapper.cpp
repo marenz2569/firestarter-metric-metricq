@@ -7,8 +7,12 @@ metric_sink_t *metric_sink_create() {
   metric_sink_t *m;
   MetricSink *obj;
 
-  m = (typeof(m))malloc(sizeof(*m));
+  m = static_cast<metric_sink_t *>(malloc(sizeof(metric_sink_t)));
+  try {
   obj = new MetricSink();
+  } catch(std::exception &e) {
+	std::cout << e.what() << std::flush;
+  }
   m->obj = obj;
 
   return m;

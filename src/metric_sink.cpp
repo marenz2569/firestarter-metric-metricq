@@ -33,13 +33,21 @@
 #include <metricq/types.hpp>
 
 #include <cmath>
-#include <metricq/exception.hpp>
+#include <stdexcept>
 
 MetricSink::MetricSink() : metricq::Sink("", true) {
   const char *server = std::getenv("METRICQ_SERVER");
-  const char *metric = std::getenv("METRICQ_METRICS");
-  metrics_.push_back(std::string(metric));
-  connect(std::string(server));
+  if (server == nullptr) {
+	  throw std::runtime_error("ENV varibale METRICQ_SERVER does not exsist");
+  }
+  this->server = server;
+  const char *metrics = std::getenv("METRICQ_METRICS");
+  if (metrics == nullptr) {
+	  throw std::runtime_error("ENV varibale METRICQ_METRICS does not exsist");
+  }
+  this->metric = metrics;
+  metrics_.push_back(this->metric);
+  connect(this->server);
 }
 
 // TODO: we should probably send an sink unsubscribe somewhere, but i think the
