@@ -1,15 +1,22 @@
 cmake_minimum_required(VERSION 3.9)
 
-project(metric-metricq VERSION 1.0)
+set(METRICQ_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+add_subdirectory(lib/metricq)
 
-add_library(metric-metricq
-	src/metric.cpp
+project(metric-metricq)
+
+add_library(${PROJECT_NAME} SHARED
+	src/metric_sink_wrapper.cpp
 	src/metric_sink.cpp
+	src/metric.c
 	)
-target_compile_features(metric-metricq PRIVATE cxx_std_17)
-target_compile_options(metric-metricq PRIVATE -Wall -Wextra -pedantic)
 
-target_link_libraries(metric-metricq
-    PRIVATE
-        metricq::sink
+target_link_libraries(${PROJECT_NAME}
+	PRIVATE
+	        metricq::sink
 )
+
+SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wl,-nostartfiles)

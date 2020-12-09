@@ -27,68 +27,68 @@
 // LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 // NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#include "metric_sink.hpp"
 
-#include <chrono>
-#include <iostream>
-#include <string>
-#include <thread>
+#include "metric_sink_wrapper.h"
 
-static MetricSink *sink = nullptr;
-static std::string error = "";
-
-extern "C" {
 #include "MetricInterface.h"
 
+#include <stdlib.h>
+
+static metric_sink_t *sink = NULL;
+
 static int32_t init() {
-  if (sink != nullptr) {
-    sink = new MetricSink();
-    while (!sink->ready()) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
+  if (sink == NULL) {
+    sink = metric_sink_create();
+    while (!metric_sink_ready(sink))
+	    ;
   }
 
   return EXIT_SUCCESS;
 }
 
 static int32_t fini() {
-  if (sink != nullptr) {
-    delete sink;
-    sink = nullptr;
+  if (sink != NULL) {
+    metric_sink_destroy(sink);
+    sink = NULL;
   }
 
   return EXIT_SUCCESS;
 }
 
 static int32_t get_reading(double *value) {
-  if (sink == nullptr) {
-    error = "no init";
+  if (sink == NULL) {
+ //   error = "no init";
     return EXIT_FAILURE;
   }
 
-  if (sink->error()) {
-    error = sink->errorString();
+  if (metric_sink_error(sink)) {
+//    error = sink->errorString();
     return EXIT_FAILURE;
   }
 
-  *double = sink->value();
+  *value = metric_sink_value(sink);
 
   return EXIT_SUCCESS;
 }
 
 static const char *get_error() {
-  // this is probably not a good coding practice.
-  const char *errorCString = error.c_str();
-  return errorCString;
+	return "";
 }
 
-static metric_type_t metric = {.name = "metricq",
-                               .type = METRIC_ABSOLUTE,
-                               .unit = "W",
-                               .callback_time = 0,
-                               .callback = nullptr,
-                               .init = init,
-                               .fini = fini,
-                               .get_reading = get_reading,
-                               .get_error = get_error};
-}
+metric_interface_t metric = {
+	.name = "metricq",
+	.type = METRIC_ABSOLUTE,
+	.unit = "W",
+	.callback_time = 0,
+	.callback = NULL,
+	.init = init,
+	.fini = fini,
+	.get_reading = get_reading,
+	.get_error = get_error,
+};
+
+static void initi(void) __attribute__((constructor));
+static void initi(void) {}
+
+static void shutdown(void) __attribute__((destructor));
+static void shutdown(void) {}

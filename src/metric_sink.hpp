@@ -35,8 +35,7 @@
 
 class MetricSink : public metricq::Sink {
 public:
-  MetricSink(const std::string &manager_host, const std::string &token,
-             const std::vector<std::string> &metrics);
+  MetricSink();
 
   std::string const &errorString() const { return errorString_; }
   bool error() const { return error_; }
@@ -62,5 +61,5 @@ private:
   std::atomic<double> last_value_ = 0.0;
   std::atomic<bool> ready_ = false;
   std::atomic<bool> error_ = false;
-  std::atomic<std::string> errorString_ = "";
+  std::string errorString_ = "";
 };

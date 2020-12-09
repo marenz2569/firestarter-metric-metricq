@@ -37,8 +37,8 @@
 
 MetricSink::MetricSink() : metricq::Sink("", true) {
   const char *server = std::getenv("METRICQ_SERVER");
-  const char *metric =
-      std::getenv("METRICQ_METRICS") metric_.push_back(std::string(metric));
+  const char *metric = std::getenv("METRICQ_METRICS");
+  metrics_.push_back(std::string(metric));
   connect(std::string(server));
 }
 
