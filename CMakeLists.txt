@@ -7,12 +7,22 @@ add_subdirectory(lib/metricq)
 project(metric-metricq)
 
 add_library(${PROJECT_NAME} SHARED
-	src/metric_sink_wrapper.cpp
-	src/metric_sink.cpp
-	src/metric.c
+	src/metric.cpp
 	)
 
+add_executable(${PROJECT_NAME}-dumper
+	src/metric_sink.cpp
+	src/main.cpp
+	)
+
+find_package(Threads REQUIRED)
+
 target_link_libraries(${PROJECT_NAME}
+	PRIVATE
+		Threads::Threads
+	)
+
+target_link_libraries(${PROJECT_NAME}-dumper
 	PRIVATE
 	        metricq::sink
 )

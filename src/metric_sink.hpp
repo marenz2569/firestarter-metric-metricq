@@ -37,31 +37,19 @@ class MetricSink : public metricq::Sink {
 public:
   MetricSink();
 
-  std::string const &errorString() const { return errorString_; }
-  bool error() const { return error_; }
-  bool ready() const { return ready_; }
-  double value() const { return last_value_; }
-
 protected:
   void on_error(const std::string &message) override;
   void on_closed() override;
 
 private:
-  using metricq::Sink::on_data;
-
   void on_connected() override;
 
   void on_data_channel_ready() override;
   void on_data(const AMQP::Message &message, uint64_t delivery_tag,
-               bool redelivered) override;
-  void on_data(const std::string &id, metricq::TimeValue tv) override;
+               bool redelivered);
+  void on_data(const std::string &id, metricq::TimeValue tv);
 
   std::vector<std::string> metrics_ = {};
-
-  std::atomic<double> last_value_ = 0.0;
-  std::atomic<bool> ready_ = false;
-  std::atomic<bool> error_ = false;
-  std::string errorString_ = "";
 
   std::string server;
   std::string metric;

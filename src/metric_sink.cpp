@@ -38,12 +38,12 @@
 MetricSink::MetricSink() : metricq::Sink("", true) {
   const char *server = std::getenv("METRICQ_SERVER");
   if (server == nullptr) {
-	  throw std::runtime_error("ENV varibale METRICQ_SERVER does not exsist");
+    throw std::runtime_error("ENV varibale METRICQ_SERVER does not exsist");
   }
   this->server = server;
   const char *metrics = std::getenv("METRICQ_METRICS");
   if (metrics == nullptr) {
-	  throw std::runtime_error("ENV varibale METRICQ_METRICS does not exsist");
+    throw std::runtime_error("ENV varibale METRICQ_METRICS does not exsist");
   }
   this->metric = metrics;
   metrics_.push_back(this->metric);
@@ -55,17 +55,13 @@ MetricSink::MetricSink() : metricq::Sink("", true) {
 
 void MetricSink::on_connected() { this->subscribe(metrics_); }
 
-void MetricSink::on_data_channel_ready() { ready_ = true; }
+void MetricSink::on_data_channel_ready() {}
 
 void MetricSink::on_error(const std::string &message) {
-  error_ = true;
-  errorString_ = message;
+  std::cout << message << std::endl;
 }
 
-void MetricSink::on_closed() {
-  error_ = true;
-  errorString_ = "Connection closed";
-}
+void MetricSink::on_closed() { std::cout << "Connection closed" << std::endl; }
 
 void MetricSink::on_data(const AMQP::Message &message, uint64_t delivery_tag,
                          bool redelivered) {
@@ -82,5 +78,10 @@ void MetricSink::on_data(const AMQP::Message &message, uint64_t delivery_tag,
 }
 
 void MetricSink::on_data(const std::string &name, metricq::TimeValue tv) {
-  last_value_ = tv.value;
+  (void)name;
+
+  std::cout << "[DATA] " << tv.time << " "
+            << std::setprecision(
+                   std::numeric_limits<decltype(tv.value)>::max_digits10)
+            << tv.value << std::endl;
 }
