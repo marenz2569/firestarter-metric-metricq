@@ -12,9 +12,6 @@ extern "C" {
 
 static pthread_t *thread;
 static const char *metricName = "metricq";
-// TODO: get this via env variable
-static const char *cmd =
-    "/home/s2599166/firestarter-metric-metricq/build/metric-metricq-dumper";
 static std::string error = "";
 static void *callback_arg = nullptr;
 static void (*callback_func)(void *, const char *, int64_t, double) = nullptr;
@@ -38,6 +35,13 @@ static void *inserter_thread(void *input) {
   (void)input;
 
   pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+  const char *cmd = std::getenv("FIRESTARTER_METRIC_METRICQ_DUMPER");
+
+  if (!cmd) {
+    error = "failed to read env variable \"FIRESTARTER_METRIC_METRICQ_DUMPER\"";
+    pthread_exit(NULL);
+  }
 
   FILE *pipe = popen(cmd, "r");
   if (!pipe) {
