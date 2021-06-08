@@ -35,7 +35,7 @@
 #include <cmath>
 #include <stdexcept>
 
-MetricSink::MetricSink() : metricq::Sink("", true) {
+MetricSink::MetricSink() : metricq::Sink("firestarter-metric-metricq", true) {
   const char *server = std::getenv("METRICQ_SERVER");
   if (server == nullptr) {
     throw std::runtime_error("ENV varibale METRICQ_SERVER does not exsist");
@@ -50,10 +50,8 @@ MetricSink::MetricSink() : metricq::Sink("", true) {
   connect(this->server);
 }
 
-// TODO: we should probably send an sink unsubscribe somewhere, but i think the
-// server should not have a problem with it, maybe.
-
-void MetricSink::on_connected() { this->subscribe(metrics_); }
+// let the data queue expire after 60 seconds if not connected to a sink
+void MetricSink::on_connected() { this->subscribe(metrics_, 60); }
 
 void MetricSink::on_data_channel_ready() {}
 
