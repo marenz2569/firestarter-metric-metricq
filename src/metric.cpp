@@ -11,10 +11,9 @@ extern "C" {
 }
 
 static pthread_t *thread;
-static const char *metricName = "metricq";
 static std::string error = "";
 static void *callback_arg = nullptr;
-static void (*callback_func)(void *, const char *, int64_t, double) = nullptr;
+static void (*callback_func)(void *, uint64_t, int64_t, double) = nullptr;
 
 static int32_t init() { return EXIT_SUCCESS; }
 
@@ -56,7 +55,7 @@ static void *inserter_thread(void *input) {
     int64_t time;
     double value;
     if (std::sscanf(line, "[DATA] %ld %lf", &time, &value) > 0) {
-      (*callback_func)(callback_arg, metricName, time, value);
+      (*callback_func)(callback_arg, ROOT_METRIC_INDEX, time, value);
     }
   }
   free(line);
@@ -66,7 +65,7 @@ static void *inserter_thread(void *input) {
   pthread_exit(NULL);
 }
 
-static int32_t register_insert_callback(void (*callback)(void *, const char *,
+static int32_t register_insert_callback(void (*callback)(void *, uint64_t,
                                                          int64_t, double),
                                         void *obj) {
   callback_func = callback;
@@ -81,18 +80,20 @@ static int32_t register_insert_callback(void (*callback)(void *, const char *,
 
 static const char *get_error() { return ""; }
 
-metric_interface_t metric = {.name = metricName,
-                             .type = {.absolute = 1,
-                                      .accumalative = 0,
-                                      .divide_by_thread_count = 0,
-                                      .insert_callback = 1,
-                                      .__reserved = 0},
-                             .unit = "W",
-                             .callback_time = 0,
-                             .callback = nullptr,
-                             .init = init,
-                             .fini = fini,
-                             .get_reading = nullptr,
-                             .get_error = get_error,
-                             .register_insert_callback =
+metric_interface_t metric = {.Name = "metricq",
+                             .Type = {.Absolute = 1,
+                                      .Accumalative = 0,
+                                      .DivideByThreadCount = 0,
+                                      .InsertCallback = 1,
+                                      .IgnoreStartStopDelta = 0,
+                                      .Reserved = 0},
+                             .Unit = "W",
+                             .CallbackTime = 0,
+                             .Callback = nullptr,
+                             .Init = init,
+                             .Fini = fini,
+                             .GetSubmetricNames = nullptr,
+                             .GetReading = nullptr,
+                             .GetError = get_error,
+                             .RegisterInsertCallback =
                                  register_insert_callback};
